@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
 	double number[25] = {};
 	double result = 0;
 
-	memory = (double *) malloc((0 * sizeof(double)));
 	// printf("Geben Sie maximal %d Nummern ein (Beenden mit quit): \n", MEMORY_SIZE - 1);
 	// if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
 	// 	printf("Error Reading!\n");
@@ -38,8 +37,13 @@ int main(int argc, char *argv[]) {
 	// }
 	//
 	// token = strtok(input_string, delimiter);
-	if(argc < 2) {
-		printf("Keine Werte in den Speicher eingelesen.\n");
+	if(argc < 2 || argc > 26) {
+		if (argc > 26) {
+			printf("Es wurden zu viele Werte eingegeben! MAX-INPUT = %d\n", MEMORY_SIZE - 1);
+			return -1;
+		} else {
+			printf("Keine Werte in den Speicher eingelesen.\n");
+		}
 	} else {
 		for (count = 1; count < argc; count++) {
 			input = f_check_input(argv[count]);
@@ -56,23 +60,22 @@ int main(int argc, char *argv[]) {
 					return -1;
 			}
 		}
-		if (count <= MEMORY_SIZE) {
-			for (i = 1; i < count; i++) {
-				if(f_memory(&memory, &memory_count, number[i]) != 0) {
-					printf("Fehler beim allocieren von Speicher!\n");
-					free(memory);
-					return -1;
-				}
-			}
-		} else {
-			printf("Es wurden zu viele Werte eingegeben! MAX-INPUT = %d\n", MEMORY_SIZE - 1);
-			free(memory);
+		memory = (double *) malloc((0 * sizeof(double)));
+		if (memory == NULL) {
+			printf("Fehler beim allocieren von Speicher!\n");
 			return -1;
+		}
+		for (i = 1; i < count; i++) {
+			if(f_memory(&memory, &memory_count, number[i]) != 0) {
+				printf("Fehler beim allocieren von Speicher!\n");
+				free(memory);
+				return -1;
+			}
 		}
 	}
 
 	while (memory_count < MEMORY_SIZE) {
-		printf("> ");
+		printf("Eingabe> ");
 		if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
 			printf("Error Reading!\n");
 			return -1;
