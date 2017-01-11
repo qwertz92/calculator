@@ -10,13 +10,13 @@
 #define QUIT_STRING "quit"
 #define QUIT 0
 #define MEMORY_SIZE 5
-#define MEMORY_FULL 1
+#define MEMORY_ALLOC_ERROR -1
 
 
 int f_check_input(char *token);
 void f_delete_char(char *string, char zeichen);
 void f_move_doublearray(double *array, size_t n);
-int f_memory(double *memory, int *memory_count, double number);
+int f_memory(double **memory, int *memory_count, double number);
 
 int main() {
 	char input_string[MAX_INPUT] = {};
@@ -31,8 +31,7 @@ int main() {
 	double result = 0;
 
 	memory = (double *) malloc((0 * sizeof(double)));
-
-	printf("Geben Sie maximal 26 Nummern ein (Beenden mit quit): \n");
+	printf("Geben Sie maximal %d Nummern ein (Beenden mit quit): \n", MEMORY_SIZE - 1);
 	if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
 		printf("Error Reading!\n");
 		return -1;
@@ -42,7 +41,7 @@ int main() {
 	if(!token) {
 		printf("Keine Werte in den Speicher eingelesen.\n");
 	} else {
-		for (count = 0; token != NULL && count < MAX_INPUT; count++) {
+		for (count = 0; token != NULL; count++) {
 			input[count] = f_check_input(token);
 			switch (input[count]) {
 				case IS_NUM:
@@ -60,16 +59,20 @@ int main() {
 		}
 		if (count < MEMORY_SIZE) {
 			for (i = 0; i < count; i++) {
-				if(f_memory(memory, &memory_count, input[i]) == MEMORY_FULL) {
-					printf("Memory full!\n");
+				if(f_memory(&memory, &memory_count, input[i]) != 0) {
+					printf("Fehler beim allocieren von Speicher!\n");
 					free(memory);
-					return 0;
+					return -1;
 				}
 			}
+		} else {
+			printf("Es wurden zu viele Werte eingegeben! MAX_INPUT = %d\n", MEMORY_SIZE - 1);
+			free(memory);
+			return -1;
 		}
 	}
 
-	while (1) {
+	while (memory_count < MEMORY_SIZE) {
 		printf("> ");
 		if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
 			printf("Error Reading!\n");
@@ -153,10 +156,16 @@ int main() {
 				free(memory);
 				return -1;
 			}
-			f_memory(memory, &memory_count, result);
+			if(f_memory(&memory, &memory_count, result) != 0) {
+				printf("Fehler beim allocieren von Speicher!\n");
+				free(memory);
+				return -1;
+			}
 		}
 	}
 
+	printf("Memory full!\n");
+	free(memory);
 	return 0;
 }
 
@@ -179,11 +188,21 @@ int f_check_input(char *token){
 		}
 	} else {
 		for (i = 0; i < length; i++) {
-			if ((*(token + i) < 48 || *(token + i) > 57) && *(token + i) != '.') {					// Check ob auch wirklich nur Zahlen eingegeben wurden
-				if(strcmp(token, QUIT_STRING) == 0) {
+			if ((*(token + i) < 48 || *(token + i) > 57) && *(token + i) != '.') {					// Check ob ungleich 0 - 9 und '.'
+				if(strcmp(token, QUIT_STRING) == 0) {																					// check ob token = quit entspricht
 					return QUIT;
 				}
-				return -1;
+				if (i == 0) {																																	// check ob Zahl mit Vorzeichen eingegeben wurde (Vorzeichen kann nur an erster Stelle sein)
+					switch (token[i]) {
+						case 43:		// +
+						case 45:		// -
+							break;
+						default:
+							return -1;
+					}
+				} else {
+					return -1;
+				}
 			}
 			if (token[i] == '.') {
 				decimal_point++;
@@ -221,17 +240,14 @@ void f_move_doublearray(double *array, size_t n) {
 	}
 }
 
-int f_memory(double *memory, int *memory_count, double number) {
-	memory = (double *) realloc(memory, ((*memory_count) + 1));				// Speicher um eine double Variable vergroessern
-	if (memory != NULL) {
-		memory[*memory_count] = number;																	// Zahl in memory speichern
-		printf("%c = %lf\n", (*memory_count + 97), memory[*memory_count]);
+int f_memory(double **memory, int *memory_count, double number) {
+	*memory = (double *) realloc(*memory, ((*memory_count + 1) * sizeof(double)));				// Speicher um eine double Variable vergroessern
+	if (*memory != NULL) {
+		(*memory)[*memory_count] = number;																	// Zahl in memory speichern
+		printf("%c = %lf\n", (*memory_count + 97), (*memory)[*memory_count]);
 		(*memory_count)++;
-		if (*memory_count >= (MEMORY_SIZE)) {														// Ueberpruefen ob memory voll ist
-			return MEMORY_FULL;
-		}
 	} else {
-		return MEMORY_FULL;																							// Rueckagabe -1 falls Memory allocation fehlschlaegt
+		return MEMORY_ALLOC_ERROR;																							// Rueckagabe -1 falls Memory allocation fehlschlaegt
 	}
 	return 0;
 }
