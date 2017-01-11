@@ -22,12 +22,12 @@ int main() {
 	char input_string[MAX_INPUT] = {};
 	char delimiter[] = {' ', '\n', '\0'};
 	char *token = NULL;
-	char operator[15] = {};
-	int input[50] = {};
+	char operator[25] = {};
+	int input = 0;
 	int memory_count = 0;
 	int i = 0, count = 0;
 	double *memory = NULL;
-	double number[15] = {};
+	double number[25] = {};
 	double result = 0;
 
 	memory = (double *) malloc((0 * sizeof(double)));
@@ -42,10 +42,10 @@ int main() {
 		printf("Keine Werte in den Speicher eingelesen.\n");
 	} else {
 		for (count = 0; token != NULL; count++) {
-			input[count] = f_check_input(token);
-			switch (input[count]) {
+			input = f_check_input(token);
+			switch (input) {
 				case IS_NUM:
-					input[count] = atof(token);
+					number[count] = atof(token);
 					token = strtok(NULL, delimiter);
 					break;
 				case QUIT:
@@ -59,7 +59,7 @@ int main() {
 		}
 		if (count < MEMORY_SIZE) {
 			for (i = 0; i < count; i++) {
-				if(f_memory(&memory, &memory_count, input[i]) != 0) {
+				if(f_memory(&memory, &memory_count, number[i]) != 0) {
 					printf("Fehler beim allocieren von Speicher!\n");
 					free(memory);
 					return -1;
@@ -82,14 +82,14 @@ int main() {
 		if(!token) {
 			printf("ERROR token is NULL\n");
 		} else {
-			for (count = 0, i = input[count]; i != -1 && token != NULL; count++) {
-				input[count] = f_check_input(token);
-				switch (input[count]) {
+			for (count = 0; token != NULL; count++) {
+				input = f_check_input(token);
+				switch (input) {
 					case IS_NUM:
 						if ((count % 2) == 0) {
 							number[(count / 2)] = atof(token);
 						} else {
-							input[count] = -1;
+							input = -1;
 						}
 						break;
 					case IS_CHAR:
@@ -97,27 +97,32 @@ int main() {
 							number[(count / 2)] = memory[((*token) - 'a')];
 						} else {
 							printf("Fuck\n");
-							input[count] = -1;
+							input = -1;
 						}
 						break;
 					case IS_OPER:
 						if ((count % 2) == 1) {
 							operator[((count - 1) / 2)] = *token;
 						} else {
-							input[count] = -1;
+							input = -1;
 						}
 						break;
 					case QUIT:
 						free(memory);
 						return 0;
-					}
+				}
+				if (input < 0) {
+					printf("Es wurden falsche Eingaben getaetigt!\n");
+					free(memory);
+					return -1;
+				}
 				// Naechsten token einlesen
 				token = strtok(NULL, delimiter);
-				i = input[count];
 			}
 			// Berechnung
 			// Soll nur durchgefuehrt werden wenn der kein Input fehlerhaft war und mindestens 3(immer ungerade(5,7,9)) Zeichen eingegeben wurde (2 + 1)
-			if ((input[count - 1] != -1) && (count % 2 == 1) && count > 2) {
+
+			if ((input != -1) && (count % 2 == 1) && count > 2) {
 				for (i = 0; i < ((count - 1) / 2); i++) {
 					if (operator[i] == '*') {
 						number[i + 1] = number[i] * number[(i + 1)];
