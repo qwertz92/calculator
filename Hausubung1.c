@@ -9,7 +9,7 @@
 #define IS_OPER 3
 #define QUIT_STRING "quit"
 #define QUIT 0
-#define MEMORY_SIZE 5
+#define MEMORY_SIZE 26
 #define MEMORY_ALLOC_ERROR -1
 
 
@@ -18,7 +18,7 @@ void f_delete_char(char *string, char zeichen);
 void f_move_doublearray(double *array, size_t n);
 int f_memory(double **memory, int *memory_count, double number);
 
-int main() {
+int main(int argc, char *argv[]) {
 	char input_string[MAX_INPUT] = {};
 	char delimiter[] = {' ', '\n', '\0'};
 	char *token = NULL;
@@ -31,22 +31,21 @@ int main() {
 	double result = 0;
 
 	memory = (double *) malloc((0 * sizeof(double)));
-	printf("Geben Sie maximal %d Nummern ein (Beenden mit quit): \n", MEMORY_SIZE - 1);
-	if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
-		printf("Error Reading!\n");
-		return -1;
-	}
-
-	token = strtok(input_string, delimiter);
-	if(!token) {
+	// printf("Geben Sie maximal %d Nummern ein (Beenden mit quit): \n", MEMORY_SIZE - 1);
+	// if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
+	// 	printf("Error Reading!\n");
+	// 	return -1;
+	// }
+	//
+	// token = strtok(input_string, delimiter);
+	if(argc < 2) {
 		printf("Keine Werte in den Speicher eingelesen.\n");
 	} else {
-		for (count = 0; token != NULL; count++) {
-			input = f_check_input(token);
+		for (count = 1; count < argc; count++) {
+			input = f_check_input(argv[count]);
 			switch (input) {
 				case IS_NUM:
-					number[count] = atof(token);
-					token = strtok(NULL, delimiter);
+					number[count] = atof(argv[count]);
 					break;
 				case QUIT:
 					free(memory);
@@ -57,8 +56,8 @@ int main() {
 					return -1;
 			}
 		}
-		if (count < MEMORY_SIZE) {
-			for (i = 0; i < count; i++) {
+		if (count <= MEMORY_SIZE) {
+			for (i = 1; i < count; i++) {
 				if(f_memory(&memory, &memory_count, number[i]) != 0) {
 					printf("Fehler beim allocieren von Speicher!\n");
 					free(memory);
@@ -66,7 +65,7 @@ int main() {
 				}
 			}
 		} else {
-			printf("Es wurden zu viele Werte eingegeben! MAX_INPUT = %d\n", MEMORY_SIZE - 1);
+			printf("Es wurden zu viele Werte eingegeben! MAX-INPUT = %d\n", MEMORY_SIZE - 1);
 			free(memory);
 			return -1;
 		}
