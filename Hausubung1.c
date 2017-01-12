@@ -54,7 +54,6 @@ int main(int argc, char *argv[]) {
 					number[count] = atof(argv[count]);
 					break;
 				case QUIT:
-					free(memory);
 					return 0;
 				case HELP:
 					printf("%s\n", help);
@@ -62,7 +61,6 @@ int main(int argc, char *argv[]) {
 					argc = 0;
 					break;
 				default:
-					free(memory);
 					printf("Es wurden falsche Eingaben getaetigt!\n");
 					return -1;
 			}
@@ -81,6 +79,9 @@ int main(int argc, char *argv[]) {
 		printf("Eingabe> ");
 		if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
 			printf("Error Reading!\n");
+			if (memory != NULL) {
+				free(memory);
+			}
 			return -1;
 		}
 		token = strtok(input_string, delimiter);
@@ -112,7 +113,9 @@ int main(int argc, char *argv[]) {
 						}
 						break;
 					case QUIT:
-						free(memory);
+						if (memory != NULL) {
+							free(memory);
+						}
 						return 0;
 					case HELP:
 						printf("%s\n", help);
@@ -121,7 +124,9 @@ int main(int argc, char *argv[]) {
 				}
 				if (input < 0) {
 					printf("Es wurden falsche Eingaben getaetigt!\n");
-					free(memory);
+					if (memory != NULL) {
+						free(memory);
+					}
 					return -1;
 				}
 				// Naechsten token einlesen wenn nicht help eingegeben wurde
@@ -144,7 +149,9 @@ int main(int argc, char *argv[]) {
 						if (operator[i] == '/') {
 							if (number[i + 1] == 0) {
 								printf("Division durch 0 nicht moeglich!\n");
-								free(memory);
+								if (memory != NULL) {
+									free(memory);
+								}
 								return -1;
 							}
 							number[i + 1] = number[i] / number[(i + 1)];
@@ -173,12 +180,16 @@ int main(int argc, char *argv[]) {
 					}
 				} else {
 					printf("Es wurden falsche Eingaben getaetigt!\n");
-					free(memory);
+					if (memory != NULL) {
+						free(memory);
+					}
 					return -1;
 				}
 				if(f_memory(&memory, &memory_count, result) != 0) {
 					printf("Fehler beim allocieren von Speicher!\n");
-					free(memory);
+					if (memory != NULL) {
+						free(memory);
+					}
 					return -1;
 				}
 			}
