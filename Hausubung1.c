@@ -16,7 +16,6 @@
 
 
 int f_check_input(char *token);
-void f_delete_char(char *string, char zeichen);
 void f_move_doublearray(double *array, size_t n);
 int f_memory(double **memory, int *memory_count, double number);
 
@@ -68,6 +67,7 @@ int main(int argc, char *argv[]) {
 					return -1;
 			}
 		}
+		// Werte in Memory speichern
 		for (i = 1; i < count; i++) {
 			if(f_memory(&memory, &memory_count, number[i]) != 0) {
 				printf("Fehler beim allocieren von Speicher!\n");
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 					for (i = 0; i < ((count - 1) / 2); i++) {
 						if (operator[i] == '*') {
 							number[i + 1] = number[i] * number[(i + 1)];
-							f_delete_char(operator, '*');
+							strncpy((operator + i), (operator + (i + 1)), ((count - 1) / 2) - (i + 1));			// delete Operator from array and shift all values 1 left
 							f_move_doublearray((number + i), (((count - 1) / 2) - i));
 							count -= 2;
 							i--;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
 								return -1;
 							}
 							number[i + 1] = number[i] / number[(i + 1)];
-							f_delete_char(operator, '/');
+							strncpy((operator + i), (operator + (i + 1)), ((count - 1) / 2) - (i + 1));			// delete Operator from array and shift all values 1 left
 							f_move_doublearray((number + i), (((count - 1) / 2) - i));
 							count -= 2;				// weil sich die Rechnung um einen Operator und eine Zahl verringert
 							i--;							// durch linksverschieben der Operatoren und Zahlen soll der Index der selbe bleiben im naechsten Durchlauf
@@ -240,25 +240,6 @@ int f_check_input(char *token){
 		return IS_NUM;
 	}
 	return -1;
-}
-
-// Loescht den uebergebenen Character aus dem String und verschiebt die nachkommenden um eine Stelle nach links
-void f_delete_char(char *string, char zeichen) {
-  int i = 0, j = 0;
-  char *position = string;
-  int length = strlen(string);
-  for (i = 0; i < length; i++) {
-    position = strchr(position, zeichen);                 // strchr(string, char) Sucht ein Zeichen (char) in einem String und gibt die Adresse des ersten ubereinstimmenden Elemetes zurueck, bei keiner uebereinstimmung wird NULL zurueckgegeben
-    if (position != NULL) {                               // Wenn ein Wert gefunden wurde werden alle nachfolgenden Werte des Arrays um 1 Element nach vorne geschoben und das gesuchte ersetzt
-      i = (position - string);                            // i auf den Index Wert des Elementes setzen
-      for (j = 0; j < (length - i - 1); j++) {            // length - i: Anzahl nachfolgender Elemente im Array (strlen(position)) (-1: da j + 1 auf index i gespeichert wird)
-        *(position + j) = *(position + (j + 1));          // Werte um 1 Element nach links verschieben (inklusive '\0')
-      }
-      i = length;                                         // i auf Laenge des Strings setzen um Schleife zu beenden
-    } else {
-			i = length;
-		}
-  }
 }
 
 void f_move_doublearray(double *array, size_t n) {
