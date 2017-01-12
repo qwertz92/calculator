@@ -37,15 +37,9 @@ int main(int argc, char *argv[]) {
 								"Gueltige Variablen: a ... z (nur wenn diese definiert wurden)\n"
 								"Variablen koennen direkt beim Aufruf als Parameter uebergeben werden.\n";
 
-	// printf("Geben Sie maximal %d Nummern ein (Beenden mit quit): \n", MEMORY_SIZE - 1);
-	// if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
-	// 	printf("Error Reading!\n");
-	// 	return -1;
-	// }
-	//
-	// token = strtok(input_string, delimiter);
 	printf("==============================================\
 				\nGeben Sie \"help\" ein um die Hilfe aufzurufen\n\n");
+	// Parameter abfragen und in Speicher schreiben wenn bestimmte Bedingungen erfuellt sind
 	if(argc < 2 || argc > 26) {
 		if (argc > 26) {
 			printf("Es wurden zu viele Werte eingegeben! MAX-INPUT = %d\n", MEMORY_SIZE - 1);
@@ -82,7 +76,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-
+	// Lauft so lange bis der Speicher voll ist
 	while (memory_count < MEMORY_SIZE) {
 		printf("Eingabe> ");
 		if (fgets(input_string, MAX_INPUT, stdin) == NULL) {
@@ -248,7 +242,7 @@ int f_check_input(char *token){
 	return -1;
 }
 
-
+// Loescht den uebergebenen Character aus dem String und verschiebt die nachkommenden um eine Stelle nach links
 void f_delete_char(char *string, char zeichen) {
   int i = 0, j = 0;
   char *position = string;
@@ -257,7 +251,7 @@ void f_delete_char(char *string, char zeichen) {
     position = strchr(position, zeichen);                 // strchr(string, char) Sucht ein Zeichen (char) in einem String und gibt die Adresse des ersten ubereinstimmenden Elemetes zurueck, bei keiner uebereinstimmung wird NULL zurueckgegeben
     if (position != NULL) {                               // Wenn ein Wert gefunden wurde werden alle nachfolgenden Werte des Arrays um 1 Element nach vorne geschoben und das gesuchte ersetzt
       i = (position - string);                            // i auf den Index Wert des Elementes setzen
-      for (j = 0; j < (length - i - 1); j++) {                // length - i: Anzahl nachfolgender Elemente im Array (strlen(position))
+      for (j = 0; j < (length - i - 1); j++) {            // length - i: Anzahl nachfolgender Elemente im Array (strlen(position)) (-1: da j + 1 auf index i gespeichert wird)
         *(position + j) = *(position + (j + 1));          // Werte um 1 Element nach links verschieben (inklusive '\0')
       }
       i = length;                                         // i auf Laenge des Strings setzen um Schleife zu beenden
